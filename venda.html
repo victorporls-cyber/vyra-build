@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>VYRA — Seu dinheiro. Sua direção.</title>
+
+  <meta
+    name="description"
+    content="Descubra quanto você pode gastar por dia até o próximo salário."
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #08080a;
+      color: #ffffff;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(100% - 32px, 900px);
+      margin: auto;
+    }
+
+    /* HEADER */
+
+    header {
+      padding: 24px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      background: #000;
+      border: 1px solid #292929;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    /* HERO */
+
+    .hero {
+      text-align: center;
+      padding: 55px 0 30px;
+    }
+
+    .tag {
+      display: inline-block;
+      color: #a78bfa;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(38px, 9vw, 70px);
+      line-height: 1;
+      letter-spacing: -3px;
+      margin: 0 auto 22px;
+      max-width: 800px;
+    }
+
+    h1 span {
+      color: #a78bfa;
+    }
+
+    .hero p {
+      max-width: 620px;
+      margin: auto;
+      color: #a1a1aa;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 17px 30px;
+      border-radius: 14px;
+      background: #8b5cf6;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 12px 35px rgba(139, 92, 246, .25);
+    }
+
+    .sub {
+      margin-top: 12px;
+      color: #71717a;
+      font-size: 12px;
+    }
+
+    /* APP PREVIEW */
+
+    .phone {
+      max-width: 330px;
+      margin: 50px auto;
+      padding: 10px;
+      background: #111114;
+      border: 1px solid #2b2b2e;
+      border-radius: 30px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.5);
+    }
+
+    .screen {
+      background: #f7f7f8;
+      color: #18181b;
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 390px;
+      text-align: left;
+    }
+
+    .screen-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #71717a;
+      margin-bottom: 35px;
+    }
+
+    .screen-title {
+      color: #52525b;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .amount {
+      color: #7c3aed;
+      font-size: 42px;
+      font-weight: 900;
+      margin: 7px 0;
+    }
+
+    .screen-small {
+      color: #71717a;
+      font-size: 12px;
+    }
+
+    .fake-button {
+      background: #7c3aed;
+      color: white;
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mini-card {
+      background: #eeeeef;
+      padding: 13px;
+      border-radius: 11px;
+      font-size: 11px;
+      color: #71717a;
+    }
+
+    .mini-card strong {
+      display: block;
+      color: #18181b;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* SECTIONS */
+
+    section {
+      padding: 65px 0;
+    }
+
+    .label {
+      color: #a78bfa;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin: 0 0 16px;
+    }
+
+    .text {
+      color: #a1a1aa;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    /* PROBLEMS */
+
+    .problems {
+      display: grid;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .problem {
+      padding: 19px;
+      border: 1px solid #27272a;
+      background: #111114;
+      border-radius: 15px;
+      color: #d4d4d8;
+    }
+
+    .problem strong {
+      color: #ffffff;
+    }
+
+    /* ANSWER */
+
+    .answer {
+      margin-top: 25px;
+      padding: 25px;
+      border-radius: 20px;
+      border: 1px solid #38275c;
+      background: #111114;
+    }
+
+    .answer strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    /* FEATURES */
+
+    .features {
+      margin-top: 25px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 14px;
+      padding: 17px 0;
+      border-bottom: 1px solid #242427;
+    }
+
+    .check {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: #21153b;
+      color: #a78bfa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .feature strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .feature span {
+      color: #a1a1aa;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* OFFER */
+
+    .offer {
+      margin-top: 25px;
+      padding: 30px 20px;
+      background: #101014;
+      border: 1px solid #39265e;
+      border-radius: 22px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #21153b;
+      color: #c4b5fd;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .price {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: -3px;
+      margin: 12px 0 3px;
+    }
+
+    .once {
+      color: #a1a1aa;
+      font-size: 13px;
+    }
+
+    .offer .cta {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .warning {
+      margin-top: 12px;
+      color: #71717a;
+      font-size: 12px;
+    }
+
+    /* FAQ */
+
+    details {
+      border-bottom: 1px solid #27272a;
+      padding: 18px 0;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    details p {
+      color: #a1a1aa;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      color: #52525b;
+      font-size: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .hero {
+        padding-top: 35px;
+      }
+
+      h1 {
+        letter-spacing: -2px;
+      }
+
+      h2 {
+        font-size: 29px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="container">
+      <div class="brand">
+        <div class="logo">V</div>
+        VYRA
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+
+    <div class="container">
+      <div class="hero">
+
+        <div class="tag">
+          SEU DINHEIRO. SUA DIREÇÃO.
+        </div>
+
+        <h1>
+          Você sabe quanto
+          <span>pode gastar hoje?</span>
+        </h1>
+
+        <p>
+          O VYRA organiza seu salário, contas, gastos e reserva
+          para mostrar uma informação simples:
+          <strong>quanto você pode gastar por dia até o próximo salário.</strong>
+        </p>
+
+        <a href="#oferta" class="cta">
+          QUERO TER O VYRA
+        </a>
+
+        <div class="sub">
+          Acesso vitalício • pagamento único
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+
+    <div class="phone">
+
+      <div class="screen">
+
+        <div class="screen-top">
+          <strong>VYRA</strong>
+          <span>Seu dinheiro. Sua direção.</span>
+        </div>
+
+        <div class="screen-title">
+          Quanto posso gastar hoje?
+        </div>
+
+        <div class="amount">
+          R$ 48,85
+        </div>
+
+        <div class="screen-small">
+          por dia até o próximo salário • 27 dias
+        </div>
+
+        <div class="fake-button">
+          + Adicionar gasto
+        </div>
+
+        <div class="cards">
+
+          <div class="mini-card">
+            Disponível
+            <strong>R$ 1.319</strong>
+          </div>
+
+          <div class="mini-card">
+            Reserva
+            <strong>R$ 900</strong>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- PROBLEMA -->
+
+    <section>
+      <div class="container">
+
+        <div class="label">
+          O problema
+        </div>
+
+        <h2>
+          O salário entra. As contas saem. E depois?
+        </h2>
+
+        <p class="text">
+          Ter dinheiro na conta não significa saber quanto é seguro gastar.
+          É aí que muita gente perde a noção e chega no fim do mês apertada.
+        </p>
+
+        <div class="problems">
+
+          <div class="problem">
+            💸 <strong>“Posso gastar isso agora?”</strong><br>
+            Você não sabe.
+          </div>
+
+          <div class="problem">
+            📅 <strong>“Será que vai faltar antes do salário?”</strong><br>
+            Só descobre depois.
+          </div>
+
+          <div class="problem">
+            📊 <strong>“Quanto posso gastar por dia?”</strong><br>
+            Normalmente ninguém calcula.
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SOLUÇÃO -->
+
+    <section>
+      <div class="container">
+
+        <div class="label">
+          A resposta
+        </div>
+
+        <h2>
+          O VYRA transforma seus números em uma decisão simples.
+        </h2>
+
+        <div class="answer">
+
+          <strong>
+            “Quanto eu posso gastar hoje sem me apertar até o próximo salário?”
+          </strong>
+
+          <p class="text">
+            Você informa o que recebe, suas contas, gastos e reserva.
+            O VYRA calcula o valor disponível e divide pelos dias restantes.
+          </p>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BENEFÍCIOS -->
+
+    <section>
+      <div class="container">
+
+        <div class="label">
+          O que você recebe
+        </div>
+
+        <h2>
+          Controle sem complicação.
+        </h2>
+
+        <div class="features">
+
+          <div class="feature">
+            <div class="check">✓</div>
+            <div>
+              <strong>Seu salário</strong>
+              <span>
+                Registre quanto entra e acompanhe seu ciclo financeiro.
+              </span>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="check">✓</div>
+            <div>
+              <strong>Suas contas</strong>
+              <span>
+                Veja o impacto das contas no dinheiro disponível.
+              </span>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="check">✓</div>
+            <div>
+              <strong>Seus gastos</strong>
+              <span>
+                Registre o que você realmente está gastando.
+              </span>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="check">✓</div>
+            <div>
+              <strong>Sua reserva</strong>
+              <span>
+                Separe um valor antes de calcular o que pode gastar.
+              </span>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="check">✓</div>
+            <div>
+              <strong>Seu limite diário</strong>
+              <span>
+                Descubra quanto pode gastar por dia até o próximo salário.
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- OFERTA -->
+
+    <section id="oferta">
+
+      <div class="container">
+
+        <div class="label">
+          Condição de lançamento
+        </div>
+
+        <h2>
+          Entre para o VYRA agora.
+        </h2>
+
+        <div class="offer">
+
+          <div class="badge">
+            Acesso vitalício
+          </div>
+
+          <div class="price">
+            R$ 14,90
+          </div>
+
+          <div class="once">
+            Pagamento único. Sem mensalidade. Sem renovação.
+          </div>
+
+          <!--
+          IMPORTANTE:
+          Depois vamos trocar o #checkout pelo link real da Kiwify.
+          -->
+
+          <a href="#checkout" class="cta">
+            QUERO O VYRA
+          </a>
+
+          <div class="warning">
+            Você paga uma vez e recebe acesso ao produto.
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- FAQ -->
+
+    <section>
+
+      <div class="container">
+
+        <div class="label">
+          Dúvidas
+        </div>
+
+        <h2>
+          Perguntas rápidas
+        </h2>
+
+        <details>
+          <summary>
+            É mensalidade?
+          </summary>
+
+          <p>
+            Não. A oferta de lançamento é um pagamento único
+            com acesso vitalício ao VYRA.
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            Preciso entender de finanças?
+          </summary>
+
+          <p>
+            Não. A proposta é justamente transformar seus números
+            em uma informação simples para o seu dia a dia.
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            O VYRA é investimento?
+          </summary>
+
+          <p>
+            Não. O VYRA é uma ferramenta de organização financeira pessoal.
+            Ele não promete rendimento nem recomenda investimentos.
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            Onde vou receber o aplicativo?
+          </summary>
+
+          <p>
+            Após a compra, o acesso e as instruções de entrega
+            serão disponibilizados pela plataforma de venda.
+          </p>
+        </details>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    VYRA • Seu dinheiro. Sua direção.
+  </footer>
+
+</body>
+</html>
