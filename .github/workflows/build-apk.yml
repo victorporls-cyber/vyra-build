@@ -8,23 +8,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Baixar os arquivos do repositório
       - name: Baixar arquivos
         uses: actions/checkout@v4
 
+      # 2. Configurar Java
       - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
+      # 3. Configurar Node
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Instalar unzip
-        run: sudo apt-get update && sudo apt-get install -y unzip rsync
+      # 4. Instalar ferramentas necessárias
+      - name: Instalar ferramentas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip rsync imagemagick
 
+      # 5. Encontrar e extrair o projeto VYRA
       - name: Encontrar e extrair VYRA
         run: |
           ZIP=$(find . -type f -name "*.zip" ! -path "./.git/*" | head -n 1)
@@ -42,9 +49,10 @@ jobs:
           echo "Conteúdo extraído:"
           find vyra-project -maxdepth 3 -type f | head -100
 
+      # 6. Encontrar o projeto Node/Capacitor
       - name: Encontrar projeto Node
         run: |
-          PACKAGE=$(find vyra-project -type f -name package.json | head -n 1)
+          PACKAGE=$(find vyra-project -type f -name "package.json" | head -n 1)
 
           if [ -z "$PACKAGE" ]; then
             echo "ERRO: package.json não encontrado."
@@ -58,11 +66,13 @@ jobs:
           echo "Projeto encontrado em:"
           echo "$PROJECT_DIR"
 
+      # 7. Instalar dependências
       - name: Instalar dependências
         run: |
           cd "$PROJECT_DIR"
           npm install
 
+      # 8. Preparar os arquivos web
       - name: Preparar arquivos web
         run: |
           cd "$PROJECT_DIR"
@@ -76,16 +86,66 @@ jobs:
             --exclude=".git" \
             ./ www/
 
-      - name: Preparar Android
+      # 9. Preparar Android e configurar ícone VYRA
+      - name: Preparar Android e ícone VYRA
         run: |
           cd "$PROJECT_DIR"
 
+          # Criar pasta Android caso não exista
           if [ ! -d "android" ]; then
             npx cap add android
           fi
 
+          # Criar pasta de assets
+          mkdir -p assets
+
+          # Procurar o logo da VYRA
+          if [ -f "icon-512.png" ]; then
+            cp icon-512.png assets/icon-only.png
+
+          elif [ -f "../icon-512.png" ]; then
+            cp ../icon-512.png assets/icon-only.png
+
+          elif [ -f "icon-maskable-512.png" ]; then
+            cp icon-maskable-512.png assets/icon-only.png
+
+          elif [ -f "../icon-maskable-512.png" ]; then
+            cp ../icon-maskable-512.png assets/icon-only.png
+
+          else
+            echo "ERRO: Logo da VYRA não encontrado."
+
+            echo "Arquivos de imagem encontrados:"
+            find . -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \)
+
+            exit 1
+          fi
+
+          echo "Logo encontrado:"
+          ls -lh assets/icon-only.png
+
+          # Garantir resolução mínima de 1024x1024
+          identify assets/icon-only.png || true
+
+          convert assets/icon-only.png \
+            -resize 1024x1024 \
+            assets/icon-only-1024.png
+
+          mv assets/icon-only-1024.png assets/icon-only.png
+
+          echo "Logo preparado em 1024x1024:"
+          identify assets/icon-only.png
+
+          # Instalar gerador oficial de ícones do Capacitor
+          npm install --save-dev @capacitor/assets
+
+          # Gerar todos os ícones Android
+          npx capacitor-assets generate --android
+
+          # Sincronizar Capacitor
           npx cap sync android
 
+      # 10. Gerar APK
       - name: Gerar APK
         run: |
           cd "$PROJECT_DIR/android"
@@ -94,6 +154,7 @@ jobs:
 
           ./gradlew assembleDebug
 
+      # 11. Publicar APK
       - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
