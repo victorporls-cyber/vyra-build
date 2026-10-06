@@ -58,14 +58,18 @@ jobs:
           echo "Projeto encontrado em:"
           echo "$PROJECT_DIR"
 
-      - name: Instalar dependências
+          - name: Preparar Android
         run: |
           cd "$PROJECT_DIR"
-          npm install
 
-      - name: Preparar Android
-        run: |
-          cd "$PROJECT_DIR"
+          mkdir -p www
+
+          rsync -av \
+            --exclude="node_modules" \
+            --exclude="android" \
+            --exclude="www" \
+            --exclude=".git" \
+            ./ www/
 
           if [ ! -d "android" ]; then
             npx cap add android
