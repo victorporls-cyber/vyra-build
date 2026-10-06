@@ -1,0 +1,89 @@
+name: Gerar VYRA APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Encontrar e extrair VYRA
+        run: |
+          ZIP=$(find . -type f -name "*.zip" ! -path "./.git/*" | head -n 1)
+
+          if [ -z "$ZIP" ]; then
+            echo "ERRO: ZIP do VYRA não encontrado."
+            exit 1
+          fi
+
+          echo "ZIP encontrado: $ZIP"
+
+          mkdir -p vyra-project
+          unzip -q "$ZIP" -d vyra-project
+
+          echo "Conteúdo extraído:"
+          find vyra-project -maxdepth 3 -type f | head -100
+
+      - name: Encontrar projeto Node
+        run: |
+          PACKAGE=$(find vyra-project -type f -name package.json | head -n 1)
+
+          if [ -z "$PACKAGE" ]; then
+            echo "ERRO: package.json não encontrado."
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$PACKAGE")
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+          echo "Projeto encontrado em:"
+          echo "$PROJECT_DIR"
+
+      - name: Instalar dependências
+        run: |
+          cd "$PROJECT_DIR"
+          npm install
+
+      - name: Preparar Android
+        run: |
+          cd "$PROJECT_DIR"
+
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+
+          npx cap sync android
+
+      - name: Gerar APK
+        run: |
+          cd "$PROJECT_DIR/android"
+
+          chmod +x gradlew
+
+          ./gradlew assembleDebug
+
+      - name: Publicar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VYRA-APK
+          path: '**/android/app/build/outputs/apk/debug/app-debug.apk'
+          if-no-files-found: error
