@@ -34,7 +34,7 @@ jobs:
       # 5. Encontrar e extrair o projeto VYRA
       - name: Encontrar e extrair VYRA
         run: |
-         ZIP=$(find . -type f -name "vyra-1.1.zip" ! -path "./.git/*" | head -n 1)
+          ZIP=$(find . -type f -name "vyra-1_2.zip" ! -path "./.git/*" | head -n 1)
 
           if [ -z "$ZIP" ]; then
             echo "ERRO: ZIP do VYRA não encontrado."
@@ -70,94 +70,4 @@ jobs:
       - name: Instalar dependências
         run: |
           cd "$PROJECT_DIR"
-          npm install
-
-      # 8. Preparar os arquivos web
-      - name: Preparar arquivos web
-        run: |
-          cd "$PROJECT_DIR"
-
-          mkdir -p www
-
-          rsync -av \
-            --exclude="node_modules" \
-            --exclude="android" \
-            --exclude="www" \
-            --exclude=".git" \
-            ./ www/
-
-      # 9. Preparar Android e configurar ícone VYRA
-      - name: Preparar Android e ícone VYRA
-        run: |
-          cd "$PROJECT_DIR"
-
-          # Criar pasta Android caso não exista
-          if [ ! -d "android" ]; then
-            npx cap add android
-          fi
-
-          # Criar pasta de assets
-          mkdir -p assets
-
-          # Procurar o logo da VYRA
-          if [ -f "icon-512.png" ]; then
-            cp icon-512.png assets/icon-only.png
-
-          elif [ -f "../icon-512.png" ]; then
-            cp ../icon-512.png assets/icon-only.png
-
-          elif [ -f "icon-maskable-512.png" ]; then
-            cp icon-maskable-512.png assets/icon-only.png
-
-          elif [ -f "../icon-maskable-512.png" ]; then
-            cp ../icon-maskable-512.png assets/icon-only.png
-
-          else
-            echo "ERRO: Logo da VYRA não encontrado."
-
-            echo "Arquivos de imagem encontrados:"
-            find . -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \)
-
-            exit 1
-          fi
-
-          echo "Logo encontrado:"
-          ls -lh assets/icon-only.png
-
-          # Garantir resolução mínima de 1024x1024
-          identify assets/icon-only.png || true
-
-          convert assets/icon-only.png \
-            -resize 1024x1024 \
-            assets/icon-only-1024.png
-
-          mv assets/icon-only-1024.png assets/icon-only.png
-
-          echo "Logo preparado em 1024x1024:"
-          identify assets/icon-only.png
-
-          # Instalar gerador oficial de ícones do Capacitor
-          npm install --save-dev @capacitor/assets
-
-          # Gerar todos os ícones Android
-          npx capacitor-assets generate --android
-
-          # Sincronizar Capacitor
-          npx cap sync android
-
-      # 10. Gerar APK
-      - name: Gerar APK
-        run: |
-          cd "$PROJECT_DIR/android"
-
-          chmod +x gradlew
-
-          ./gradlew assembleDebug
-
-      # 11. Publicar APK
-      - name: Publicar APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: VYRA-APK
-          path: '**/android/app/build/outputs/apk/debug/app-debug.apk'
-          if-no-files-found: error
+          npm
