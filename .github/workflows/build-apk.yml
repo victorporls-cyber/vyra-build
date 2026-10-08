@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       # 1. Baixar os arquivos do repositório
       - name: Baixar arquivos
         uses: actions/checkout@v4
@@ -71,3 +72,95 @@ jobs:
         run: |
           cd "$PROJECT_DIR"
           npm install
+
+      # 8. Preparar os arquivos web
+      - name: Preparar arquivos web
+        run: |
+          cd "$PROJECT_DIR"
+
+          mkdir -p www
+
+          rsync -av \
+            --exclude="node_modules" \
+            --exclude="android" \
+            --exclude="www" \
+            --exclude=".git" \
+            ./ www/
+
+      # 9. Preparar Android e configurar ícone VYRA
+      - name: Preparar Android e ícone VYRA
+        run: |
+          cd "$PROJECT_DIR"
+
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+
+          mkdir -p assets
+
+          if [ -f "icon-512.png" ]; then
+            cp icon-512.png assets/icon-only.png
+
+          elif [ -f "../icon-512.png" ]; then
+            cp ../icon-512.png assets/icon-only.png
+
+          elif [ -f "icon-maskable-512.png" ]; then
+            cp icon-maskable-512.png assets/icon-only.png
+
+          elif [ -f "../icon-maskable-512.png" ]; then
+            cp ../icon-maskable-512.png assets/icon-only.png
+
+          else
+            echo "ERRO: Logo da VYRA não encontrado."
+
+            echo "Arquivos de imagem encontrados:"
+            find . -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \)
+
+            exit 1
+          fi
+
+          echo "Logo encontrado:"
+          ls -lh assets/icon-only.png
+
+          identify assets/icon-only.png || true
+
+          convert assets/icon-only.png \
+            -resize 1024x1024 \
+            assets/icon-only-1024.png
+
+          mv assets/icon-only-1024.png assets/icon-only.png
+
+          echo "Logo preparado em 1024x1024:"
+          identify assets/icon-only.png
+
+          npm install --save-dev @capacitor/assets
+
+          npx capacitor-assets generate --android
+
+          npx cap sync android
+
+      # 10. Gerar APK
+      - name: Gerar APK
+        run: |
+          cd "$PROJECT_DIR/android"
+
+          chmod +x gradlew
+
+          ./gradlew assembleDebug
+
+      # 11. Renomear APK
+      - name: Renomear APK
+        run: |
+          cp "$PROJECT_DIR/android/app/build/outputs/apk/debug/app-debug.apk" \
+             "$PROJECT_DIR/android/app/build/outputs/apk/debug/VYRA.apk"
+
+          echo "APK criado:"
+          ls -lh "$PROJECT_DIR/android/app/build/outputs/apk/debug/VYRA.apk"
+
+      # 12. Publicar APK
+      - name: Publicar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VYRA
+          path: "**/android/app/build/outputs/apk/debug/VYRA.apk"
+          if-no-files-found: error
