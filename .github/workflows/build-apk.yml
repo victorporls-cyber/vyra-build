@@ -70,4 +70,4 @@ jobs:
       - name: Instalar dependências
         run: |
           cd "$PROJECT_DIR"
-          npm
+          npm install
