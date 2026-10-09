@@ -35,7 +35,7 @@ jobs:
       # 5. Encontrar e extrair o projeto VYRA
       - name: Encontrar e extrair VYRA
         run: |
-          ZIP=$(find . -type f -name "vyra-1_2.zip" ! -path "./.git/*" | head -n 1)
+          ZIP=$(find . -type f -name "vyra-1_3.zip" ! -path "./.git/*" | head -n 1)
 
           if [ -z "$ZIP" ]; then
             echo "ERRO: ZIP do VYRA não encontrado."
