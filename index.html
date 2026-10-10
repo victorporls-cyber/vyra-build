@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,9 +12,15 @@
     content="Descubra quanto você pode gastar por dia até o próximo salário."
   >
 
+  <meta name="theme-color" content="#08080a">
+
   <style>
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -106,6 +113,14 @@
       font-weight: 900;
       font-size: 16px;
       box-shadow: 0 12px 35px rgba(139, 92, 246, .25);
+      transition: background .2s, transform .2s;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .cta:hover {
+      background: #7c3aed;
+      transform: translateY(-2px);
     }
 
     .sub {
@@ -123,7 +138,7 @@
       background: #111114;
       border: 1px solid #2b2b2e;
       border-radius: 30px;
-      box-shadow: 0 25px 70px rgba(0,0,0,.5);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, .5);
     }
 
     .screen {
@@ -138,6 +153,7 @@
     .screen-top {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
       font-size: 11px;
       color: #71717a;
       margin-bottom: 35px;
@@ -159,6 +175,7 @@
     .screen-small {
       color: #71717a;
       font-size: 12px;
+      line-height: 1.5;
     }
 
     .fake-button {
@@ -236,6 +253,7 @@
       background: #111114;
       border-radius: 15px;
       color: #d4d4d8;
+      line-height: 1.6;
     }
 
     .problem strong {
@@ -331,6 +349,7 @@
     .once {
       color: #a1a1aa;
       font-size: 13px;
+      line-height: 1.5;
     }
 
     .offer .cta {
@@ -342,6 +361,7 @@
       margin-top: 12px;
       color: #71717a;
       font-size: 12px;
+      line-height: 1.5;
     }
 
     /* FAQ */
@@ -354,20 +374,30 @@
     summary {
       cursor: pointer;
       font-weight: bold;
+      line-height: 1.5;
     }
 
     details p {
       color: #a1a1aa;
-      line-height: 1.5;
+      line-height: 1.6;
       font-size: 14px;
     }
+
+    /* FOOTER */
 
     footer {
       padding: 40px 0;
       text-align: center;
-      color: #52525b;
+      color: #71717a;
       font-size: 12px;
+      line-height: 1.8;
     }
+
+    footer a {
+      color: #a78bfa;
+    }
+
+    /* MOBILE */
 
     @media (max-width: 500px) {
       .hero {
@@ -381,6 +411,29 @@
       h2 {
         font-size: 29px;
       }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      section {
+        padding: 48px 0;
+      }
+
+      .phone {
+        margin-top: 35px;
+        margin-bottom: 35px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .cta {
+        transition: none;
+      }
     }
   </style>
 </head>
@@ -390,7 +443,7 @@
   <header>
     <div class="container">
       <div class="brand">
-        <div class="logo">V</div>
+        <div class="logo" aria-label="Logo VYRA">V</div>
         VYRA
       </div>
     </div>
@@ -418,9 +471,12 @@
           <strong>quanto você pode gastar por dia até o próximo salário.</strong>
         </p>
 
-       <a href="https://pay.hotmart.com/J107955589R" class="cta">
-  QUERO TER O VYRA
-</a>
+        <a
+          href="https://pay.hotmart.com/J107955589R"
+          class="cta"
+        >
+          QUERO TER O VYRA
+        </a>
 
         <div class="sub">
           Acesso vitalício • pagamento único
@@ -429,9 +485,9 @@
       </div>
     </div>
 
-    <!-- PREVIEW -->
+    <!-- PREVIEW DO APLICATIVO -->
 
-    <div class="phone">
+    <div class="phone" aria-label="Prévia ilustrativa do VYRA">
 
       <div class="screen">
 
@@ -616,7 +672,6 @@
     <!-- OFERTA -->
 
     <section id="oferta">
-
       <div class="container">
 
         <div class="label">
@@ -641,12 +696,10 @@
             Pagamento único. Sem mensalidade. Sem renovação.
           </div>
 
-          <!--
-          IMPORTANTE:
-          Depois vamos trocar o #checkout pelo link real da Kiwify.
-          -->
-
-          <a href="#https://pay.hotmart.com/J107955589R" class="cta">
+          <a
+            href="https://pay.hotmart.com/J107955589R"
+            class="cta"
+          >
             QUERO O VYRA
           </a>
 
@@ -657,13 +710,11 @@
         </div>
 
       </div>
-
     </section>
 
     <!-- FAQ -->
 
     <section>
-
       <div class="container">
 
         <div class="label">
@@ -719,13 +770,14 @@
         </details>
 
       </div>
-
     </section>
 
   </main>
 
   <footer>
-    VYRA • Seu dinheiro. Sua direção.
+    <div class="container">
+      VYRA • Seu dinheiro. Sua direção.
+    </div>
   </footer>
 
 </body>
