@@ -1,0 +1,7 @@
+{
+  "appId": "com.vyra.app",
+  "appName": "VYRA",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "backgroundColor": "#0a0910" }
+}
