@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -15,10 +16,10 @@ concurrency:
 
 jobs:
   publicar:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
 
     steps:
       - name: Baixar VYRA 2.0
@@ -26,14 +27,14 @@ jobs:
         with:
           ref: feature/vyra-2-auth-1
 
-      - name: Configurar GitHub Pages
+      - name: Configurar Pages
         uses: actions/configure-pages@v5
 
-      - name: Preparar arquivos
+      - name: Enviar arquivos
         uses: actions/upload-pages-artifact@v3
         with:
           path: recovered-vyra/vyra
 
-      - name: Publicar VYRA
+      - name: Publicar
         id: deployment
         uses: actions/deploy-pages@v4
