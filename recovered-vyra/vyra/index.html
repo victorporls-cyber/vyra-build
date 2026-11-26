@@ -478,7 +478,10 @@ html.pwa .shell { padding-top: calc(20px + env(safe-area-inset-top, 0px)); }
     }
     return s;
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  try { window.dispatchEvent(new CustomEvent('vyra:data-saved', { detail: state })); } catch (e) {}
+}
 
   /* ---------- 4. seletores e cálculo (funções puras) ---------- */
   function sum(a) { var t = 0; for (var i = 0; i < a.length; i++) t += a[i].amount; return t; }
@@ -1310,6 +1313,157 @@ html.pwa .shell { padding-top: calc(20px + env(safe-area-inset-top, 0px)); }
 })();
 </script>
 <!--/PWA-REG-->
+
+
+<!-- VYRA_AUTH_CLOUD_V2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+#vyra-auth{position:fixed;inset:0;z-index:999999;background:#08080a;color:#fff;display:flex;align-items:center;justify-content:center;padding:22px;font-family:Arial,sans-serif}
+#vyra-auth .panel{width:100%;max-width:390px;background:#151519;border:1px solid #303036;border-radius:20px;padding:25px}
+#vyra-auth h1{font-size:30px;margin:0 0 8px}
+#vyra-auth p{color:#aaa;line-height:1.5}
+#vyra-auth input{box-sizing:border-box;width:100%;padding:14px;margin:7px 0;background:#242429;border:1px solid #444;color:white;border-radius:10px;font-size:16px}
+#vyra-auth button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:10px;background:#fff;color:#111;font-weight:bold;font-size:15px}
+#vyra-auth button.alt{background:#29292f;color:#fff}
+#vyra-auth #vyra-msg{font-size:13px;min-height:20px;color:#ddd}
+</style>
+<div id="vyra-auth">
+  <div class="panel">
+    <h1>VYRA</h1>
+    <p>Seu dinheiro. Sua direção.<br>Entre ou crie sua conta para continuar.</p>
+    <input id="vyra-email" type="email" placeholder="Seu e-mail" autocomplete="email">
+    <input id="vyra-pass" type="password" placeholder="Sua senha (mínimo 8 caracteres)" autocomplete="current-password">
+    <button id="vyra-login">Entrar</button>
+    <button class="alt" id="vyra-signup">Criar minha conta</button>
+    <button class="alt" id="vyra-reset">Esqueci minha senha</button>
+    <p id="vyra-msg"></p>
+  </div>
+</div>
+<script>
+(function(){
+  const URL = "https://ibkafvjhkevfzbwnypqf.supabase.co";
+  const KEY = "sb_publishable_t9PXYf6A2yNfwZKQAvr4tg_sgrMadsZ";
+  const msg = document.getElementById("vyra-msg");
+  const overlay = document.getElementById("vyra-auth");
+  const email = document.getElementById("vyra-email");
+  const pass = document.getElementById("vyra-pass");
+  let client, busy = false, timer;
+
+  function say(t){ msg.textContent = t; }
+  function show(){ overlay.style.display = "flex"; }
+  function hide(){ overlay.style.display = "none"; }
+
+  function localData(){
+    try { return JSON.parse(localStorage.getItem("vyra:v1") || "null"); }
+    catch(e){ return null; }
+  }
+
+  async function upload(user, data){
+    const result = await client.from("vyra_data").upsert({
+      user_id:user.id,
+      data:data || {},
+      updated_at:new Date().toISOString()
+    },{onConflict:"user_id"});
+    if(result.error) throw result.error;
+  }
+
+  async function sync(user){
+    if(busy) return;
+    busy = true;
+    try{
+      const local = localData();
+      if(local) localStorage.setItem("vyra:v1:backup-before-cloud", JSON.stringify(local));
+
+      const result = await client.from("vyra_data")
+        .select("data").eq("user_id",user.id).maybeSingle();
+      if(result.error) throw result.error;
+
+      const remote = result.data && result.data.data;
+      if(remote && local){
+        const same = JSON.stringify(remote) === JSON.stringify(local);
+        if(!same){
+          const keepLocal = confirm("Encontramos dados neste aparelho e na nuvem. OK = manter os dados deste aparelho. Cancelar = restaurar os dados da nuvem.");
+          if(keepLocal) await upload(user,local);
+          else {
+            localStorage.setItem("vyra:v1",JSON.stringify(remote));
+            location.reload();
+            return;
+          }
+        }
+      } else if(remote && !local){
+        localStorage.setItem("vyra:v1:backup-before-cloud", JSON.stringify(local));
+        localStorage.setItem("vyra:v1",JSON.stringify(remote));
+        location.reload();
+        return;
+      } else {
+        await upload(user,local || (window.VYRA ? window.VYRA.getState() : {}));
+      }
+      hide();
+      say("");
+    } catch(e){
+      show();
+      say("Erro na sincronização: " + (e.message || "verifique sua conexão."));
+    } finally { busy = false; }
+  }
+
+  async function start(){
+    const {data,error} = await client.auth.getSession();
+    if(error){ say(error.message); return; }
+    if(data.session) await sync(data.session.user);
+    else show();
+  }
+
+  document.getElementById("vyra-login").onclick = async function(){
+    say("Entrando...");
+    const {data,error} = await client.auth.signInWithPassword({email:email.value.trim(),password:pass.value});
+    if(error) say(error.message);
+    else await sync(data.user);
+  };
+
+  document.getElementById("vyra-signup").onclick = async function(){
+    say("Criando sua conta...");
+    const {data,error} = await client.auth.signUp({email:email.value.trim(),password:pass.value});
+    if(error) say(error.message);
+    else if(data.session) await sync(data.user);
+    else say("Conta criada! Confirme seu e-mail e depois entre na VYRA.");
+  };
+
+  document.getElementById("vyra-reset").onclick = async function(){
+    if(!email.value.trim()){ say("Digite seu e-mail primeiro."); return; }
+    const {error} = await client.auth.resetPasswordForEmail(email.value.trim());
+    say(error ? error.message : "Se o e-mail estiver cadastrado, você receberá o link de recuperação.");
+  };
+
+  window.addEventListener("vyra:data-saved",function(){
+    clearTimeout(timer);
+    timer = setTimeout(async function(){
+      const {data} = await client.auth.getSession();
+      if(data.session){
+        try { await upload(data.session.user, localData()); }
+        catch(e){ console.warn("VYRA: sincronização pendente",e); }
+      }
+    },1200);
+  });
+
+  window.addEventListener("online",async function(){
+    const {data} = await client.auth.getSession();
+    if(data.session){
+      try { await upload(data.session.user,localData()); }
+      catch(e){ console.warn("VYRA: sincronização pendente",e); }
+    }
+  });
+
+  async function init(){
+    if(!window.supabase){ say("Não foi possível carregar o serviço. Verifique sua conexão."); return; }
+    client = window.supabase.createClient(URL,KEY);
+    client.auth.onAuthStateChange(function(event,session){
+      if(event === "SIGNED_OUT") show();
+    });
+    await start();
+  }
+  init();
+})();
+</script>
 
 </body>
 </html>
