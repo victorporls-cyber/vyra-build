@@ -1,0 +1,39 @@
+
+name: Publicar VYRA 2.0
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar VYRA 2.0
+        uses: actions/checkout@v4
+        with:
+          ref: feature/vyra-2-auth-1
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar arquivos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: recovered-vyra/vyra
+
+      - name: Publicar VYRA
+        id: deployment
+        uses: actions/deploy-pages@v4
