@@ -1,0 +1,25 @@
+{
+  "name": "vyra",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "VYRA: saiba quanto você pode gastar antes do próximo salário.",
+  "scripts": {
+    "serve": "npx --yes serve . -l 8000",
+    "web:copy": "node scripts/copy-web.mjs",
+    "android:add": "npx cap add android",
+    "android:sync": "npm run web:copy && npx cap sync android",
+    "android:open": "npx cap open android",
+    "apk": "node scripts/build-apk.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "latest",
+    "@capacitor/core": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

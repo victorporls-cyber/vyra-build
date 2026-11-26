@@ -1,0 +1,37 @@
+name: Gerar VYRA.apk
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar Capacitor
+        run: npm install
+
+      - name: Gerar o APK (copia o app, cria o projeto Android, ícone, compila)
+        run: npm run apk
+
+      - name: Conferir o pacote (nome e ID do app)
+        run: |
+          AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | tail -1)
+          "$AAPT2" dump badging VYRA.apk | grep -E "^package:|application-label:|launchable-activity" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VYRA-apk
+          path: VYRA.apk
