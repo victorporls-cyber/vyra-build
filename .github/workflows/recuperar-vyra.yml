@@ -1,0 +1,30 @@
+name: Recuperar arquivos da VYRA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recuperar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Extrair projeto
+        run: |
+          mkdir -p recovered-vyra
+          unzip -o vyra-1_3.zip -d recovered-vyra
+          echo "Arquivos encontrados:"
+          find recovered-vyra -type f
+
+      - name: Salvar cópia recuperada
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add recovered-vyra
+          git commit -m "Recuperar arquivos da VYRA" || echo "Nada novo para salvar"
+          git push
