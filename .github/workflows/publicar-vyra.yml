@@ -35,6 +35,9 @@ jobs:
         with:
           path: recovered-vyra/vyra
 
+      - name: Aguardar sincronização
+        run: sleep 15
+
       - name: Publicar
         id: deployment
         uses: actions/deploy-pages@v4
