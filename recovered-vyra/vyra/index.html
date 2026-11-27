@@ -1171,16 +1171,27 @@
 <style>
 
 </style>
-<div id="vyra-auth">
+  
+  <div id="vyra-auth">
   <div class="panel">
     <h1>VYRA</h1>
-    <p>Seu dinheiro. Sua direção.<br>Entre ou crie sua conta para continuar.</p>
+    <p>Seu dinheiro. Sua direção.</p>
+
+    <h2 id="vyra-auth-title">Bem-vindo de volta!</h2>
+    <p id="vyra-auth-subtitle">Entre na sua conta para continuar.</p>
+
     <input id="vyra-email" type="email" placeholder="Seu e-mail" autocomplete="email">
     <input id="vyra-pass" type="password" placeholder="Sua senha (mínimo 8 caracteres)" autocomplete="current-password">
+
     <button id="vyra-login">Entrar</button>
-    <button class="alt" id="vyra-signup">Criar minha conta</button>
+    <button class="alt" id="vyra-signup">Primeiro acesso? Criar conta</button>
     <button class="alt" id="vyra-reset">Esqueci minha senha</button>
+
     <p id="vyra-msg"></p>
+
+</div>
+
+  
   </div>
 </div>
 <script>
@@ -1257,20 +1268,47 @@
     else show();
   }
 
-  document.getElementById("vyra-login").onclick = async function(){
-    say("Entrando...");
-    const {data,error} = await client.auth.signInWithPassword({email:email.value.trim(),password:pass.value});
-    if(error) say(error.message);
-    else await sync(data.user);
-  };
+  let signupMode = false;
 
-  document.getElementById("vyra-signup").onclick = async function(){
-    say("Criando sua conta...");
-    const {data,error} = await client.auth.signUp({email:email.value.trim(),password:pass.value});
+document.getElementById("vyra-login").onclick = async function(){
+  say(signupMode ? "Criando sua conta..." : "Entrando...");
+
+  if(signupMode){
+    const {data,error} = await client.auth.signUp({
+      email:email.value.trim(),
+      password:pass.value
+    });
+
     if(error) say(error.message);
     else if(data.session) await sync(data.user);
-    else say("Conta criada! Confirme seu e-mail e depois entre na VYRA.");
-  };
+    else say("Conta criada! Confirme seu e-mail para entrar.");
+  } else {
+    const {data,error} = await client.auth.signInWithPassword({
+      email:email.value.trim(),
+      password:pass.value
+    });
+
+    if(error) say(error.message);
+    else await sync(data.user);
+  }
+};
+
+document.getElementById("vyra-signup").onclick = function(){
+  signupMode = !signupMode;
+  say("");
+
+  document.getElementById("vyra-auth-title").textContent =
+    signupMode ? "Crie sua conta" : "Bem-vindo de volta!";
+
+  document.getElementById("vyra-auth-subtitle").textContent =
+    signupMode ? "Cadastre-se para começar a usar a VYRA." : "Entre na sua conta para continuar.";
+
+  document.getElementById("vyra-login").textContent =
+    signupMode ? "Criar conta" : "Entrar";
+
+  document.getElementById("vyra-signup").textContent =
+    signupMode ? "Já tenho conta? Entrar" : "Primeiro acesso? Criar conta";
+};
 
   document.getElementById("vyra-reset").onclick = async function(){
     if(!email.value.trim()){ say("Digite seu e-mail primeiro."); return; }
